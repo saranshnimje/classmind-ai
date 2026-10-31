@@ -1,0 +1,53 @@
+# Render Blueprint — ClassMind AI backend (FastAPI)
+# PUBLIC / FREE-TIER — deploy only after confirming limits
+# Note: Render Free instances sleep after inactivity and have ephemeral storage.
+# SQLite data and model weights must be rebuilt/re-added for persistence.
+# YOLO weights (data/models/*.pt) are excluded from Git by .gitignore; add
+# them manually or rebuild with requirements-vision.txt if YOLO is needed.
+
+services:
+  - type: web
+    name: classmind-ai
+    runtime: python
+    plan: free
+    region: ohio  # use closest free region
+    branch: master
+    rootDir: .
+
+    # Python runtime
+    pythonVersion: 3.12
+
+    # Build: install backend deps + build frontend for the backend to serve
+    buildCommand: |
+      pip install --upgrade pip && \
+      pip install -r backend/requirements.txt && \
+      cd frontend && npm ci && npm run build && cd ..
+
+    # Start: bind to Render's provided $PORT; serve from repo root
+    startCommand: python -m uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+
+    # Health check uses the existing health endpoint
+    healthCheckPath: /api/health
+
+    # Required environment (safe, no secrets, no API keys)
+    envVars:
+      - key: CLASSMIND_DATA_DIR
+        value: /opt/render/project/src/data
+      - key: CLASSMIND_LOG_LEVEL
+        value: INFO
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
+      # Optional: set to false for fully offline operation
+      - key: CLASSMIND_ALLOW_MODEL_DOWNLOAD
+        value: "true"
+
+    # Build / runtime notes
+    # - SQLite is local to the instance; data does NOT persist across deploys
+    #   unless using Render's external disk (paid) or backing to a managed DB.
+    # - YOLO weights must exist at /opt/render/project/src/data/models/yolov8n.pt
+    #   or the app falls back to HOG (verified working).
+    # - Silero VAD requires vision package install; core image uses energy VAD.
+    # - Docker is preserved (Dockerfile / docker-compose.yml) but Render uses
+    #   this blueprint directly (not Docker) unless explicitly switched.
