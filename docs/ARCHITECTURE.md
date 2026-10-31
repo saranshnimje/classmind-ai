@@ -147,12 +147,18 @@ Core tables:
 - The API client is typed and maps structured errors to `ApiError`.
 - Theme preference and last-opened session are stored locally in the browser.
 
+## Deployment modes
+
+- **Self-hosted:** the React SPA and FastAPI backend can run on one trusted machine. The configured local data directory stores SQLite, uploaded media, and exports.
+- **Current public demo:** Vercel serves the frontend and Render hosts the FastAPI backend. Browser requests cross origins and are restricted by the exact CORS origin allowlist in `render.yaml`.
+- **Hosted-demo persistence:** Render Free uses ephemeral filesystem storage. SQLite and media can be lost on restart/redeploy; no external persistent database or disk is configured.
+- **Hosted-demo inference:** the verified free runtime uses OpenCV HOG and energy VAD fallbacks. Ollama is not running in the hosted environment; optional YOLO/Silero dependencies and weights are not part of the core free build.
+
 ## Security and safety boundaries
 
 - Uploaded filenames are replaced with generated names; path traversal is rejected.
 - Uploads are size-limited and extension-checked, then probed as real media.
 - The SPA fallback only serves files inside `frontend/dist`.
 - API responses set `nosniff`, `SAMEORIGIN`, `no-referrer`, and `no-store` for `/api`.
-- CORS is limited to the local Vite origins by default.
-- There is no authentication because the app is intended to run on a trusted local
-  machine. Do not expose it directly to the public internet.
+- CORS is limited to configured exact origins; the hosted deployment allowlists the two production Vercel domains plus local Vite development origins.
+- There is currently no authentication, authorization, or tenant isolation. The hosted public demo is therefore only for synthetic/sample data and must not receive real classroom recordings. Do not treat this prototype as a production multi-user service.
