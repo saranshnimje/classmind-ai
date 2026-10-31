@@ -82,7 +82,11 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="Classroom overview"
         title="Dashboard"
-        description="Attendance and engagement signals from recordings processed on this machine. Values are descriptive proxies, not student assessments."
+        description={(() => {
+          const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+          const isHosted = typeof mode === "string" && mode.trim().toLowerCase() === "hosted";
+          return isHosted ? "Attendance and engagement signals from recordings processed on the Render backend." : "Attendance and engagement signals from recordings processed on this machine. Values are descriptive proxies, not student assessments.";
+        })()}
         actions={
           <>
             <button
@@ -170,8 +174,14 @@ export function DashboardPage() {
         />
         <StatCard
           label="Data location"
-          value="Local"
-          hint="No media leaves this machine"
+          value={(() => {
+            const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+            return typeof mode === "string" && mode.trim().toLowerCase() === "hosted" ? "Hosted (Render)" : "Local";
+          })()}
+          hint={(() => {
+            const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+            return typeof mode === "string" && mode.trim().toLowerCase() === "hosted" ? "Uploaded media is sent to the Render backend for processing; storage depends on instance filesystem." : "No media leaves this machine";
+          })()}
           icon={Database}
           tone="neutral"
         />

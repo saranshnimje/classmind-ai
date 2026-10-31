@@ -190,8 +190,27 @@ function SidebarContent({
             Privacy-first
           </p>
           <p className="mt-1">
-            Media stays on this machine. No face recognition, no cloud uploads, no student
-            surveillance profiles.
+            {(() => {
+              const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+              const isHosted = typeof mode === "string" && mode.trim().toLowerCase() === "hosted";
+              return isHosted ? (
+                <>
+                  Frontend is hosted on Vercel. Recordings are sent over HTTPS to the Render backend for processing.
+                  Processing and temporary/persistent storage depend on Render's filesystem and database configuration.
+                </>
+              ) : (
+                <>
+                  Media stays on this machine. No face recognition, no cloud uploads, no student surveillance profiles.
+                </>
+              );
+            })()}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+            {(() => {
+              const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+              const isHosted = typeof mode === "string" && mode.trim().toLowerCase() === "hosted";
+              return isHosted ? "Data location: Render (instance filesystem). Use synthetic/demo recordings unless authorization and consent are in place." : "Data is stored according to the local Docker configuration.";
+            })()}
           </p>
         </div>
       </div>

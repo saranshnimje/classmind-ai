@@ -31,6 +31,8 @@ services:
 
     # Required environment (safe, no secrets, no API keys)
     envVars:
+      - key: CLASSMIND_BACKEND_ONLY
+        value: "true"
       - key: CLASSMIND_DATA_DIR
         value: /opt/render/project/src/data
       - key: CLASSMIND_LOG_LEVEL

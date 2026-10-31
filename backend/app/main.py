@@ -7,6 +7,7 @@ Run from the repository root:
 from __future__ import annotations
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -123,6 +124,18 @@ def api_root() -> dict:
 
 @app.get("/{full_path:path}", include_in_schema=False)
 def serve_frontend(full_path: str):
+    # Production backend-only mode: prevent serving React SPA at root
+    if os.environ.get("CLASSMIND_BACKEND_ONLY") == "true" and (full_path == "" or full_path == "/"):
+        return JSONResponse(
+            status_code=200,
+            content={
+                "service": "ClassMind AI backend",
+                "status": "running",
+                "docs": "/docs",
+                "health": "/api/health",
+                "version": cfg.app_version,
+            },
+        )
     if full_path.startswith("api"):
         return JSONResponse(
             status_code=404, content=error_payload("not_found", "API endpoint not found")

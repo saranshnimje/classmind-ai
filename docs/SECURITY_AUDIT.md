@@ -82,9 +82,9 @@ This audit covers the ClassMind AI application as deployed for local classroom r
 - Requirements pinned to specific versions:
   - fastapi 0.162.0
   - pydantic 2.14.2
-  - sqlalchemy 2.0.41
+  - sqlalchemy 2.1.6
   - opencv-python-headless 4.12.0.88
-  - imageio-ffmpeg 1.50.0
+  - imageio-ffmpeg 0.7.0
 - Optional vision stack (ultralytics, torch, onnxruntime, silero-vad) NOT installed by default.
 - No deprecated or inherently unsafe dependencies in core requirements.
 - **Status**: VERIFIED
