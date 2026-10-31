@@ -236,8 +236,9 @@ The backend serves `frontend/dist` at <http://127.0.0.1:8000>. Deep links fall b
 ### 5. Optional: Docker Compose
 
 A `Dockerfile` and `docker-compose.yml` are included for the **core** stack (HOG +
-energy VAD). The image is not built or verified in the development environment used for
-this project; treat Docker as an optional convenience.
+energy VAD). The local Docker service was rebuilt and verified healthy during the latest
+recorded check; `/api/health` returned HTTP 200. Docker remains an optional way to run
+the self-hosted prototype.
 
 ```powershell
 docker compose up --build
