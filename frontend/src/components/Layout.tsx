@@ -199,11 +199,49 @@ function SidebarContent({
   );
 }
 
+export function useValidatedSessionId(pathname: string) {
+  const [validated, setValidated] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fromPath = sessionIdFromPath(pathname);
+    if (fromPath && pathname.match(/^\/(?:sessions|attendance|analytics|recommendations)\/[^/]+$/)) {
+      setValidated(fromPath);
+      
+      return;
+    }
+    const saved = lastSessionId();
+    if (!saved) {
+      setValidated(null);
+      
+      return;
+    }
+    let cancelled = false;
+    api.getSession(saved)
+      .then(() => {
+        if (!cancelled) { setValidated(saved);  }
+      })
+      .catch((err: Error) => {
+        if (cancelled) return;
+        const e = err as { status?: number; code?: string };
+        if (e.status === 404 || e.code === "session_not_found") {
+          try { window.localStorage.removeItem(LAST_SESSION_KEY); } catch {}
+          setValidated(null);
+        } else {
+          setValidated(saved);
+        }
+        
+      });
+    return () => { cancelled = true; };
+  }, [pathname]);
+
+  return validated;
+}
+
 export function Layout() {
   const { theme, toggle } = useTheme();
   const location = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const sessionId = sessionIdFromPath(location.pathname);
+  const sessionId = useValidatedSessionId(location.pathname);
   const online = useBackendStatus();
 
   useEffect(() => {
