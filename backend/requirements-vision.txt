@@ -1,0 +1,8 @@
+# OPTIONAL extra: pretrained YOLO person detector + Silero VAD (CPU).
+# Installs PyTorch (~200 MB download, ~1 GB on disk). The application works
+# without this file using the built-in OpenCV HOG detector and energy VAD.
+ultralytics==8.4.194
+opencv-python==4.12.0.88
+torch==2.15.0
+torchvision==0.29.2
+silero-vad==6.2.3
