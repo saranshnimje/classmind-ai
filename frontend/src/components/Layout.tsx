@@ -191,25 +191,41 @@ function SidebarContent({
           </p>
           <p className="mt-1">
             {(() => {
-              const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
-              const isHosted = typeof mode === "string" && mode.trim().toLowerCase() === "hosted";
-              return isHosted ? (
+              const raw = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+              const mode = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+              const isHosted = mode === "hosted";
+              const isLocal = mode === "local";
+              if (isHosted) {
+                return (
+                  <>
+                    Frontend is hosted on Vercel. Recordings are sent over HTTPS to the Render backend for processing.
+                    Processing and temporary/persistent storage depend on Render's filesystem and database configuration.
+                  </>
+                );
+              }
+              if (isLocal) {
+                return (
+                  <>
+                    Media stays on this machine. No face recognition, no cloud uploads, no student surveillance profiles.
+                  </>
+                );
+              }
+              return (
                 <>
-                  Frontend is hosted on Vercel. Recordings are sent over HTTPS to the Render backend for processing.
-                  Processing and temporary/persistent storage depend on Render's filesystem and database configuration.
-                </>
-              ) : (
-                <>
-                  Media stays on this machine. No face recognition, no cloud uploads, no student surveillance profiles.
+                  Deployment mode unknown. Processing location is not confirmed. Use synthetic/demo recordings unless authorization and consent are in place.
                 </>
               );
             })()}
           </p>
           <p className="mt-1 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
             {(() => {
-              const mode = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
-              const isHosted = typeof mode === "string" && mode.trim().toLowerCase() === "hosted";
-              return isHosted ? "Data location: Render (instance filesystem). Use synthetic/demo recordings unless authorization and consent are in place." : "Data is stored according to the local Docker configuration.";
+              const raw = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+              const mode = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+              const isHosted = mode === "hosted";
+              const isLocal = mode === "local";
+              if (isHosted) return "Data location: Render (instance filesystem). Use synthetic/demo recordings unless authorization and consent are in place.";
+              if (isLocal) return "Data is stored according to the local Docker configuration.";
+              return "Data location: unconfirmed. Use synthetic/demo recordings unless authorization and consent are in place.";
             })()}
           </p>
         </div>
@@ -368,13 +384,32 @@ export function Layout() {
         </main>
 
         <footer className="mx-auto w-full max-w-7xl px-4 pb-8 text-xs leading-relaxed text-slate-400 sm:px-6 lg:px-8 dark:text-slate-500">
-          ClassMind AI runs entirely on this machine. Detected people remain anonymous until you
-          explicitly map a track to a roster entry. Engagement scores are descriptive proxies, not
-          assessments of students.{" "}
-          <Link to="/about" className="link">
-            Read the privacy &amp; method notes
-          </Link>
-          .
+          {(() => {
+            const raw = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+            const mode = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+            if (mode === "hosted") {
+              return (
+                <>
+                  Frontend is hosted on Vercel. Recordings are sent over HTTPS to the Render backend for processing. Processing and storage depend on Render's filesystem and database configuration. Detected people remain anonymous until you explicitly map a track to a roster entry. Engagement scores are descriptive proxies, not assessments.{" "}
+                  <Link to="/about" className="link">Read the privacy &amp; method notes</Link>.
+                </>
+              );
+            }
+            if (mode === "local") {
+              return (
+                <>
+                  ClassMind AI runs locally on this machine. Media stays here; no face recognition, no cloud uploads, no student surveillance profiles. Detected people remain anonymous until you explicitly map a track to a roster entry. Engagement scores are descriptive proxies, not assessments.{" "}
+                  <Link to="/about" className="link">Read the privacy &amp; method notes</Link>.
+                </>
+              );
+            }
+            return (
+              <>
+                Deployment mode unknown. Processing location is not confirmed. Use synthetic/demo recordings unless authorization and consent are in place. Detected people remain anonymous until you explicitly map a track to a roster entry. Engagement scores are descriptive proxies, not assessments.{" "}
+                <Link to="/about" className="link">Read the privacy &amp; method notes</Link>.
+              </>
+            );
+          })()}
         </footer>
       </div>
     </div>

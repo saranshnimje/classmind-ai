@@ -45,6 +45,14 @@ describe('privacy messaging', () => {
     }
   });
 
+  it('layout footer uses mode-aware messages (no hardcoded local-only for all modes)', () => {
+    const src = require('fs').readFileSync('src/components/Layout.tsx', 'utf-8');
+    expect(src).toContain('Vercel. Recordings are sent');
+    expect(src).toContain('runs locally on this machine');
+    expect(src).toContain('Deployment mode unknown');
+    expect(src).not.toContain('ClassMind AI runs entirely on this machine');
+  });
+
   it('does not use import.meta.env.PROD as hosting detector', () => {
     // The module must not reference .PROD; verify by checking source text.
     // We rely on the implementation not using PROD.
