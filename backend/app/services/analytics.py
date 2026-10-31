@@ -15,6 +15,7 @@ import numpy as np
 
 from .audio import AudioAnalysis, speech_overlap
 from .vision import TrackResult, VisionResult
+from .fusion import fuse_modalities
 
 MOVEMENT_ACTIVE_THRESHOLD = 0.002  # normalised displacement per sample
 MOVEMENT_SCALE = 20.0  # 5% of frame width per sample => movement index 1.0
@@ -389,4 +390,5 @@ def build_analytics(
         "window_sec": window_sec,
         "min_presence_sec": min_presence_sec,
         "late_after_sec": late_after_sec,
+        "fusion_session_descriptor": fuse_modalities(vision, audio, session_id=None),
     }
