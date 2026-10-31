@@ -45,9 +45,10 @@ services:
       # Optional: set to false for fully offline operation
       - key: CLASSMIND_ALLOW_MODEL_DOWNLOAD
         value: "true"
-      # CORS for Vercel frontend + local dev; JSON array format for Pydantic list[str]
+      # CORS: allow both verified Vercel Production domains and local Vite development.
+      # Add additional exact origins here when another frontend domain is verified.
       - key: CLASSMIND_CORS_ORIGINS
-        value: '["http://localhost:5173","http://127.0.0.1:5173","https://classmind-ai-kohl.vercel.app"]'
+        value: '["http://localhost:5173","http://127.0.0.1:5173","https://classmind-ai-kohl.vercel.app","https://classmind--ai.vercel.app"]'
 
     # Build / runtime notes
     # - SQLite is local to the instance; data does NOT persist across deploys
