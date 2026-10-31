@@ -1,14 +1,10 @@
-# ClassMind AI — Multimodal Attendance & Engagement Agent
+# ClassMind AI — Multimodal Classroom Attendance & Engagement Prototype
 
-ClassMind AI is a **local-first classroom analysis application**. It turns a recorded
-classroom video (and optionally a separate audio track) into anonymous attendance
-estimates, windowed engagement proxies, data-quality notes, evidence-linked teaching
-suggestions, and exportable reports.
+ClassMind AI is a **local-first classroom analysis prototype with a hosted public demo**. It turns a recorded classroom video (and optionally a separate audio track) into anonymous attendance estimates, windowed engagement proxies, data-quality notes, evidence-linked teaching suggestions, and exportable reports.
 
-Everything runs on the machine that hosts the backend. There is **no face recognition,
-no speaker identification, no emotion detection, no demographic inference, no cloud AI
-API, and no public media URL**. Detected people stay anonymous unless a teacher
-explicitly maps a track to a roster entry.
+The processing location depends on how you run it: a self-hosted installation processes files on your own machine; the public demo uploads files to the ClassMind backend hosted on Render, where processing occurs. The app does not call a third-party cloud AI API. It has **no face recognition, no speaker identification, no emotion detection, and no demographic inference**. Detected people stay anonymous unless a teacher explicitly maps a track to a roster entry.
+
+> **Public demo safety:** the hosted prototype currently has no user authentication or per-user data isolation. Do not upload real classroom recordings, identifiable student data, or confidential media. Use only synthetic/demo material. Render's free filesystem is ephemeral, so demo sessions and uploads may disappear after a restart or redeploy.
 
 > Engagement is a **descriptive proxy** built from observable signals (movement, active
 > presence, speech activity). It is not a validated measure of attention, learning,
@@ -20,6 +16,7 @@ explicitly maps a track to a roster entry.
 
 - [What it does](#what-it-does)
 - [Screens](#screens)
+- [Hosted demo](#hosted-demo)
 - [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
@@ -33,6 +30,7 @@ explicitly maps a track to a roster entry.
 - [Troubleshooting](#troubleshooting)
 - [Project structure](#project-structure)
 - [Verification status](#verification-status)
+- [Submission preparation](#submission-preparation)
 
 ---
 
@@ -99,6 +97,28 @@ The React app includes:
 7. **Recommendations** — evidence-linked suggestions with filters and source labels.
 8. **Settings** — analysis defaults, detector/model status, retention, Ollama status.
 9. **About / Privacy** — method notes, privacy and ethical-use guidance.
+
+---
+
+## Hosted demo
+
+- **Frontend:** <https://classmind--ai.vercel.app>
+- **Backend:** <https://classmind-ai.onrender.com>
+- **Backend health:** <https://classmind-ai.onrender.com/api/health>
+- **API documentation:** <https://classmind-ai.onrender.com/docs>
+- **Source repository:** <https://github.com/saranshnimje/classmind-ai>
+
+The Vercel project serves the React frontend; the Render service runs FastAPI and serves the API. Both verified production frontend domains are allowed by the backend CORS configuration: `classmind--ai.vercel.app` and `classmind-ai-kohl.vercel.app`.
+
+**Hosted-demo runtime notes (verified from the deployed health endpoint and Render logs):**
+- The backend health endpoint and dashboard/session/settings API requests returned HTTP 200.
+- The deployed runtime used OpenCV HOG person detection and built-in energy-based voice activity detection; optional YOLO/Silero models were not installed.
+- Ollama was not reachable in the hosted environment, so optional local-LLM suggestions are unavailable there; rule-based recommendations are the fallback.
+- FFmpeg was available in the checked runtime.
+- Render Free services can sleep when idle. The first request after sleep may take time.
+- The free service uses ephemeral local storage. SQLite records, uploaded media, and generated exports are not durable and may be lost when the instance restarts or is redeployed. Do not rely on the hosted demo for persistent storage.
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for deployment topology and operational caveats.
 
 ---
 
@@ -387,8 +407,8 @@ evidence. Use **Clear demo data** to remove all demo sessions.
 
 ## Privacy and ethics
 
-- **Local only.** Media and results are stored under `data/`; no upload to a cloud
-  service, no telemetry, no API keys.
+- **Self-hosted mode:** media and results are stored under the configured local `data/` directory. The app does not call a third-party cloud AI API or send telemetry.
+- **Hosted demo:** uploaded media and results are sent to and stored temporarily on the Render backend instance. This public prototype has no authentication or per-user isolation. Do not upload real student recordings or confidential data.
 - **Anonymous by default.** No face recognition, biometric templates, speaker
   identification, emotion detection, or demographic classification.
 - **Manual identity mapping only.** A teacher may map a track to a roster entry; the
@@ -400,6 +420,7 @@ evidence. Use **Clear demo data** to remove all demo sessions.
 - **Retention controls.** Configure retention days and optional media deletion.
 - **Consent and policy.** Obtain appropriate consent and follow your institution's
   policies before recording a classroom.
+- **Hosted demo warning.** The public demo is for synthetic/sample data only. It is not an approved secure repository for classroom recordings.
 
 See [`docs/PRIVACY_AND_ETHICS.md`](docs/PRIVACY_AND_ETHICS.md) for the full statement.
 
@@ -417,7 +438,9 @@ See [`docs/PRIVACY_AND_ETHICS.md`](docs/PRIVACY_AND_ETHICS.md) for the full stat
 - Occlusion, low light, camera motion, small faces, and crowded rooms reduce reliability.
 - YOLO CPU inference is slow; sampling and image size trade accuracy for speed.
 - Live camera capture depends on hardware and has not been verified on every platform.
-- Ollama suggestions depend on a locally running model; rules are the fallback.
+- Ollama suggestions depend on a locally running model; rules are the fallback. Ollama is not available in the hosted Render runtime.
+- The public hosted prototype has no login, authentication, or tenant isolation; all visitors share the same backend instance and its temporary data.
+- Render Free storage is ephemeral and can be cleared on restart/redeploy; the hosted demo is not a persistent production service.
 - The app does not replace direct observation or professional judgement.
 
 See [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md).
@@ -488,20 +511,30 @@ Verified on the development machine (Windows, Python 3.12.13, Node 24.19.0):
 | Area | Status | Evidence |
 | --- | --- | --- |
 | Backend automated tests | **DONE** | 60 tests pass (`pytest`). |
-| Frontend automated tests | **DONE** | 42 tests pass across 10 files (`vitest`). |
+| Frontend automated tests | **DONE** | 47 tests pass across 11 files (`vitest`, latest recorded run). |
 | TypeScript typecheck | **DONE** | `tsc --noEmit` passes. |
 | Production frontend build | **DONE** | `vite build` succeeds; code-split chunks emitted. |
 | Real recorded-media pipeline | **DONE** | 12 s MP4 + speech WAV: YOLO detection, tracking, attendance, 1 window, Silero speech intervals, recommendations, JSON/CSV/HTML reports. |
 | Live UI verification | **DONE** | Dashboard and analytics rendered against the live backend with no console errors. |
 | Optional live camera capture | **NOT VERIFIED** | Requires camera hardware; endpoint/scaffolding exists. |
-| Docker image | **NOT VERIFIED** | Files provided; image was not built in this environment. |
+| Docker runtime | **DONE** | Local Docker service rebuilt; container healthy and `/api/health` returned HTTP 200 (latest recorded verification). |
 | Ollama suggestions | **NOT VERIFIED** | Optional local model was not running; rule fallback verified. |
 
 Demo sessions are simulated and are not included in the inference claims above.
 
 ---
 
+## Submission preparation
+
+Before submitting, prepare a short screen-recorded demo, include the public repository and live demo URLs, and clearly state the hosted-demo limitations. A suggested walkthrough and final checklist are in [`docs/SUBMISSION_GUIDE.md`](docs/SUBMISSION_GUIDE.md).
+
+Do not claim the hosted demo is fully local, authenticated, persistent, or production-ready. Use synthetic/demo media in the public deployment.
+
+---
+
 ## License / attribution
+
+No `LICENSE` file is currently present in this repository. Choose and add an explicit open-source license before describing the code as open source or accepting external contributions.
 
 This project was built as a SkillWallet "Generative AI with Google Cloud" submission.
 It uses open-source libraries (FastAPI, OpenCV, Ultralytics YOLO, Silero VAD, React,
