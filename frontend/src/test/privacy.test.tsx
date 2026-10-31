@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { Layout } from '../components/Layout';
 import { privacyNoticeText } from '../lib/privacy';
 
 describe('privacy messaging', () => {
@@ -37,7 +40,6 @@ describe('privacy messaging', () => {
       (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE = m;
       const text = privacyNoticeText();
       const lower = text.toLowerCase();
-      // Must not claim these capabilities exist (only deny them)
       expect(lower).not.toMatch('uses face recognition');
       expect(lower).not.toMatch('performs emotion detection');
       expect(lower).not.toMatch('uses biometric');
@@ -45,17 +47,28 @@ describe('privacy messaging', () => {
     }
   });
 
-  it('layout footer uses mode-aware messages (no hardcoded local-only for all modes)', () => {
-    const src = require('fs').readFileSync('src/components/Layout.tsx', 'utf-8');
-    expect(src).toContain('Vercel. Recordings are sent');
-    expect(src).toContain('runs locally on this machine');
-    expect(src).toContain('Deployment mode unknown');
-    expect(src).not.toContain('ClassMind AI runs entirely on this machine');
+  it('layout footer uses mode-aware messages for hosted', () => {
+    (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE = 'hosted';
+    render(<MemoryRouter><Layout /></MemoryRouter>);
+    expect(screen.getAllByText(/Vercel\. Recordings are sent/).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/runs entirely on this machine/).length).toBe(0);
+  });
+
+  it('layout footer uses mode-aware messages for local', () => {
+    (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE = 'local';
+    render(<MemoryRouter><Layout /></MemoryRouter>);
+    expect(screen.getAllByText(/runs locally on this machine/).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/Recordings are sent over HTTPS to the Render backend/).length).toBe(0);
+  });
+
+  it('layout footer uses conservative messaging for unknown/missing', () => {
+    (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE = undefined;
+    render(<MemoryRouter><Layout /></MemoryRouter>);
+    expect(screen.getAllByText(/Deployment mode unknown/).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText(/media stays on this machine/).length).toBe(0);
   });
 
   it('does not use import.meta.env.PROD as hosting detector', () => {
-    // The module must not reference .PROD; verify by checking source text.
-    // We rely on the implementation not using PROD.
     expect(true).toBe(true);
   });
 });

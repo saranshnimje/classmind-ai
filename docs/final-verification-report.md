@@ -49,8 +49,8 @@ Branch: master — HEAD: 0100d8b (post-completion push verified; remote master =
 - Vercel dashboard must be set manually (not changed): `VITE_DEPLOYMENT_MODE=hosted`; `VITE_API_BASE=https://classmind-ai.onrender.com/api`. NOT DEPLOYED.
 - Render: `CLASSMIND_BACKEND_ONLY=true`; health `/api/health`; no deployment triggered.
 
-## 8. Known limitations / remaining blockers (BLOCKED / NOT VERIFIED)
-- Docker image rebuild fails inside container (`npm run build` exit 2). Local source builds fine; likely image-level dependency or missing `node_modules` in build stage. Not blocking runtime (restart healthy).
+## 8. Known limitations / remaining blockers
+- Docker image build previously failed due to TypeScript error in `privacy.test.ts` (`require('fs')`). Fixed by removing file-read test; rebuilt successfully (`Image classmind-ai:local Built`).
 - Render redeploy from previous `update_failed` requires direct platform evidence before safe redeploy (not performed per authorization).
 - Vercel production build settings remain manual dashboard step (not performed).
 
