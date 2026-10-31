@@ -54,6 +54,22 @@ Branch: master — HEAD: 0100d8b (post-completion push verified; remote master =
 - Render redeploy from previous `update_failed` requires direct platform evidence before safe redeploy (not performed per authorization).
 - Vercel production build settings remain manual dashboard step (not performed).
 
+## 10. Render Deployment Verification (VERIFIED)
+- Service: `classmind-ai` (existing Render web service, `master` branch).
+- Source commit: `0e894c2` pushed to `origin/master`; Render configured to track `master`.
+- Health endpoint (`https://classmind-ai.onrender.com/api/health`): HTTP 200; response confirms `database: ok`, `app: ClassMind AI`, `version: 1.0.0`.
+- Root endpoint (`/`): HTTP 200; returns JSON backend status (`service: ClassMind AI backend`; not frontend).
+- Docs (`/docs`): accessible.
+- CORS: `Access-Control-Allow-Origin: https://classmind--ai.vercel.app` confirmed.
+- Previous `update_failed` event (deployment `dep-dbj17615efls73dh3lvg`): exact failure reason remains unknown (no accessible Render event details); service responds successfully now.
+- Storage limitation (VERIFIED from `render.yaml`): Render Free uses ephemeral filesystem; SQLite persistence across redeploys not guaranteed without external disk.
+- No Render dashboard changes made; no Vercel deployment triggered; no secrets exposed.
+
+## 11. Vercel — Not Deployed (PRESERVED)
+- Dashboard unchanged.
+- Expected settings documented (`VITE_DEPLOYMENT_MODE=hosted`; `VITE_API_BASE=https://classmind-ai.onrender.com/api`).
+- Frontend accessible at `https://classmind--ai.vercel.app` (older build); new hosted privacy messaging requires Vercel redeploy (separate authorization).
+
 ## 9. Safety confirmation
 - No secrets exposed; `.env.tmp` cleaned.
 - No force-push; branch master; no database reset; no volume deletion.
