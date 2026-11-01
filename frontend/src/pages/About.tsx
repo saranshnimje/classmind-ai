@@ -29,6 +29,7 @@ import {
   PageHeader,
 } from "../components/ui";
 import { useDocumentTitle } from "../lib/hooks";
+import { getDeploymentMode, privacyPrinciples, privacyMethodNote, privacySummary } from "../lib/privacy";
 
 function Section({
   icon: Icon,
@@ -110,21 +111,18 @@ export function AboutPage() {
       <div className="grid gap-5 xl:grid-cols-2">
         <Section icon={ShieldCheck} title="Privacy principles">
           <ul className="space-y-2">
-            {[
-              "All media is processed on this machine. The backend has no outbound AI calls and no cloud dependencies.",
-              "ClassMind does not perform face recognition, does not build biometric templates, and does not attempt to identify anyone from appearance.",
-              "Detected people are anonymous participant tracks. Mapping to a roster name is an explicit, manual action by the teacher and can be undone.",
-              "Roster entries contain names and optional school IDs only. No photos, embeddings or biometric attributes are stored.",
-              "Uploaded media is stored in a local data directory with generated IDs, never exposed as public URLs.",
-              "Retention is configurable. You can delete a session and its media at any time, or delete original media after processing.",
-              "Optional Ollama suggestions use a local URL only. If it is unreachable, the app falls back to deterministic rules and says so.",
-            ].map((item) => (
+            {privacyPrinciples(getDeploymentMode()).map((item) => (
               <li key={item} className="flex gap-2">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{item}</span>
               </li>
             ))}
           </ul>
+          <InfoNote tone="info" title={privacySummary().title}>
+            <p>
+              {privacyMethodNote(getDeploymentMode())} {privacySummary().processing}
+            </p>
+          </InfoNote>
         </Section>
 
         <Section icon={BookOpenCheck} title="What this system is not">
