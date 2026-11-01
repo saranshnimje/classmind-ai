@@ -63,6 +63,17 @@ export function privacyPrinciples(mode: DeploymentMode): string[] {
   ];
 }
 
+export function privacyNoticeText(): string {
+  const mode = getDeploymentMode();
+  if (mode === "hosted") {
+    return "Hosted privacy. Frontend is hosted on Vercel. Recordings are sent over HTTPS to the Render backend for processing. Processing and storage depend on Render's filesystem and database configuration. No face recognition, no biometric identification. Data location: Render (instance filesystem).";
+  }
+  if (mode === "local") {
+    return "Local privacy. Media stays on this machine. No face recognition, no cloud uploads, no student surveillance profiles. Data is stored according to the local Docker configuration. No face recognition, no biometric identification.";
+  }
+  return "Privacy notice. Processing mode is not configured. No face recognition, no biometric identification, no emotion detection, and no speaker identification are performed. Use synthetic/demo recordings unless authorization and consent are in place.";
+}
+
 export function privacyMethodNote(mode: DeploymentMode): string {
   if (mode === "hosted")
     return "This installation runs on Vercel (frontend) and Render (backend). Media is uploaded via HTTPS to the Render instance, processed there, and stored in the configured instance filesystem/SQLite database.";

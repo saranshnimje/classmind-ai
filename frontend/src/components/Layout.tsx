@@ -352,7 +352,13 @@ export function Layout() {
               {online === false
                 ? "Backend offline"
                 : online
-                  ? "Backend connected · processed locally"
+                  ? (() => {
+                      const raw = (import.meta.env as Record<string, unknown>).VITE_DEPLOYMENT_MODE;
+                      const mode = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+                      if (mode === "hosted") return "Backend connected · Render backend";
+                      if (mode === "local") return "Backend connected · local backend";
+                      return "Backend connected · deployment mode unknown";
+                    })()
                   : "Checking backend…"}
             </div>
           </div>
